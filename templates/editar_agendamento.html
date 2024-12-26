@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Agendamento - Van Nails</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+    <style>
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+
+
+    </style>
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-pink-400 text-white">
+        <div class="container mx-auto flex justify-between items-center py-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center">
+                <p class="logo">Van Nails</p>
+            </a>
+            <a href="{{ url_for('logout') }}" class="bg-red-600 py-2 px-4 rounded hover:bg-red-700">
+                Sair
+            </a>
+        </div>
+    </nav>
+
+    <!-- Formulário de Edição -->
+    <div class="container mx-auto mt-10 max-w-md">
+        <div id="flash-messages" class="space-y-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="p-4 border rounded 
+                            {{ 'bg-green-100 border-green-500 text-green-700' if category == 'success' else 
+                               'bg-red-100 border-red-500 text-red-700' if category == 'error' else 
+                               'bg-blue-100 border-blue-500 text-blue-700' }}">
+                            <strong>{{ message }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        <h2 class="text-3xl font-bold text-center">Editar Agendamento</h2>
+        <p class="text-center text-gray-600 mt-2">Atualize as informações do agendamento abaixo.</p>
+
+        <form method="POST" action="{{ url_for('editar_agendamento', appointment_id=appointment.id) }}" class="mt-6 bg-white p-6 rounded-lg shadow-md">
+            <!-- Data -->
+            <label class="block mb-4">
+                <span class="text-gray-700">Data</span>
+                <input type="date" name="date" required class="block w-full mt-1 p-2 border rounded"
+                       value="{{ appointment.date.strftime('%Y-%m-%d') }}">
+            </label>
+            <!-- Hora -->
+            <label class="block mb-4">
+                <span class="text-gray-700">Horário</span>
+                <input type="time" name="time" required class="block w-full mt-1 p-2 border rounded"
+                       value="{{ appointment.time.strftime('%H:%M') }}">
+            </label>
+
+
+              <!-- Campo de Serviço -->
+<label class="block mb-4">
+    <span class="text-gray-700">Serviço</span>
+    <select name="service_type" required class="block w-full mt-1 p-2 border rounded">
+        <!-- Grupo Unhas Básicas -->
+        <optgroup label="Unhas Básicas">
+            <option value="Mão">Mão - R$35,00</option>
+            <option value="Pé">Pé - R$35,00</option>
+            <option value="Esmaltação em Gel">Esmaltação em Gel - R$50,00</option>
+        </optgroup>
+
+        <!-- Grupo Alongamentos -->
+        <optgroup label="Alongamentos">
+            <option value="Fibra ou Tips">Fibra ou Tips - R$180,00</option>
+            <option value="Banho de Gel">Banho de Gel - R$120,00</option>
+            <option value="Blindagem">Blindagem - R$80,00</option>
+            <option value="Alongamento Pé">Alongamento Pé - R$80,00</option>
+            <option value="Spa dos Pés">Spa dos Pés - R$90,00</option>
+        </optgroup>
+
+        <!-- Grupo Adicionais -->
+        <optgroup label="Adicionais">
+            <option value="Manutenção Fibra, Tips">Manutenção Fibra, Tips - R$150,00</option>
+            <option value="Remoção">Remoção - R$50,00</option>
+            <option value="Nails Arts/un">Nails Arts/un - R$10,00</option>
+        </optgroup>
+    </select>
+</label>
+
+<label class="block mb-4">
+    <span class="text-gray-700">Manicure</span>
+    <select id="barber" name="barber" required class="block w-full mt-1 p-2 border rounded">
+        <option value="" disabled selected>Escolha uma Manicure</option>
+        <option value="Vanderli">Vanderli</option>
+    </select>
+</label>
+
+
+            <!-- Botão para Salvar -->
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Salvar Alterações
+            </button>
+        </form>
+
+        <!-- Botão para Cancelar -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="text-gray-600 hover:text-gray-900">
+                Cancelar e Voltar
+            </a>
+        </div>
+    </div>
+</body>
+</html>

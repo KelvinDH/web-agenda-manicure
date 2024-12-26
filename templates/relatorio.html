@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h2, h3 { text-align: center; }
+        .total { text-align: right; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>{{ title }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Preço</th>
+                <th>Manicure</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.user.name }}</td>
+                    <td>{{ appointment.service_type }}</td>
+                    <td>R${{ '%.2f' | format(appointment.price) }}</td>
+                    <td>{{ appointment.barber }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center;">Nenhum agendamento encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="total">
+        Total de Ganhos: R${{ '%.2f' | format(total_earnings) }}
+    </div>
+</body>
+</html>

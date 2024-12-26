@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar - Barbearia Moderno</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+    <style>
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+
+
+    </style>
+
+    <script>
+        // Máscara de telefone
+        function aplicarMascaraTelefone(event) {
+            const input = event.target;
+            let value = input.value.replace(/\D/g, ""); // Remove tudo que não for dígito
+
+            if (value.length > 10) {
+                // Formato: (XX) XXXXX-XXXX
+                value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+            } else if (value.length > 5) {
+                // Formato: (XX) XXXX-XXXX
+                value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+            } else if (value.length > 2) {
+                // Formato: (XX) XXXX
+                value = value.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+            } else {
+                // Formato: (XX
+                value = value.replace(/^(\d{0,2})$/, "($1");
+            }
+
+            input.value = value;
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+<!-- Navbar -->
+<nav class="bg-pink-400 text-white">
+    <div class="container mx-auto flex justify-between items-center py-4 px-4">
+        <!-- Logo -->
+        <a href="{{ url_for('home') }}" class="flex items-center">
+            <p class="logo">Van Nails</p>
+        </a>
+
+        <!-- Menu -->
+        <div>
+            {% if session['user_id'] %}
+                <!-- Dropdown para Usuários Logados -->
+                <div class="relative inline-block">
+                    <button onclick="toggleDropdown()" class="focus:outline-none">
+                        <i class="bi bi-person-circle hover:text-blue-200" style="font-size: 36px;"></i>
+                    </button>
+                    <div id="dropdown" class="hidden absolute right-0 bg-white text-black shadow-lg " style="width: 200px;">
+                        <a href="{{ url_for('agendar') }}" class="block px-4 py-2 hover:bg-gray-400 ">Agendar</a>
+                        <a href="{{ url_for('meus_agendamentos') }}" class="block px-4 py-2 hover:bg-gray-400 ">Meus Agendamentos</a>
+                        <a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-400 ">Sair</a>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Hamburger Menu para Usuários Não Logados -->
+                <div class="md:hidden">
+                    <button id="menuButton" class="text-white focus:outline-none">
+                        <i class="bi bi-list" style="font-size: 34px;"></i>
+                    </button>
+                </div>    
+                    <div id="mobileMenu" class="hidden fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col items-center justify-center space-y-6 text-xl">
+                        <button id="closeMenu" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300">
+                            <i class="bi bi-x-circle-fill" style="color: red;"></i>
+                        </button>
+
+                       
+                        <a href="/login" class="bg-blue-600 py-2 px-4 rounded hover:bg-blue-700">Login</a>
+                        <a href="/register" class="bg-green-600 py-2 px-4 rounded hover:bg-green-700">Registrar</a>
+                        
+                    </div>
+                
+
+                <!-- Menu Desktop -->
+                <div id="desktopMenu" class="hidden md:flex space-x-6">
+                    
+                    <a href="/login" class="inline-flex items-center px-6 py-1 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600">
+                        Login
+                    </a>
+                    <a href="/register" class="inline-flex items-center px-6 py-2 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600">
+                        Registrar
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+<div class="container mx-auto mt-4">
+    <div id="flash-messages" class="space-y-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 border rounded 
+                        {{ 'bg-green-100 border-green-500 text-green-700' if category == 'success' else 
+                           'bg-red-100 border-red-500 text-red-700' if category == 'error' else 
+                           'bg-blue-100 border-blue-500 text-blue-700' }}">
+                        <strong>{{ message }}</strong>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+
+    
+</div>
+
+    <!-- Formulário de Registro -->
+    <div class="container mx-auto mt-10 max-w-md">
+        <h2 class="text-3xl font-bold text-center">Registrar</h2>
+        <p class="text-center text-gray-400 mt-2">Crie sua conta para agendar horários.</p>
+
+        <form method="POST" action="{{ url_for('register') }}" class="mt-6 bg-gray-800 p-6 rounded-lg shadow-md">
+            <!-- Nome -->
+            <label class="block mb-4">
+                <span class="text-gray-300">Nome Completo</span>
+                <input type="text" name="name" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white" placeholder="Digite seu nome completo">
+            </label>
+
+            <!-- E-mail -->
+            <label class="block mb-4">
+                <span class="text-gray-300">E-mail</span>
+                <input type="email" name="email" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white" placeholder="Digite seu e-mail">
+            </label>
+
+            <!-- Telefone -->
+            <label class="block mb-4">
+                <span class="text-gray-300">Telefone</span>
+                <input type="text" name="phone" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white" placeholder="Digite seu telefone" maxlength="15" oninput="aplicarMascaraTelefone(event)">
+            </label>
+
+            <!-- Senha -->
+            <label class="block mb-4">
+                <span class="text-gray-300">Senha</span>
+                <div class="relative">
+                    <input id="password" type="password" name="password" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white">
+                    <button type="button" onclick="togglePasswordVisibility('password', 'togglePassword')" class="absolute inset-y-0 right-0 flex items-center px-3">
+                        <i id="togglePassword" class="bi bi-eye-fill text-gray-200"></i>
+                    </button>
+                </div>
+            </label>
+
+            <!-- Confirmar Senha -->
+            <label class="block mb-4">
+                <span class="text-gray-300">Confirmar Senha</span>
+                <div class="relative">
+                    <input id="confirmPassword" type="password" name="confirm_password" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white">
+                    <button type="button" onclick="togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword')" class="absolute inset-y-0 right-0 flex items-center px-3">
+                        <i id="toggleConfirmPassword" class="bi bi-eye-fill text-gray-200"></i>
+                    </button>
+                </div>
+            </label>
+
+            <!-- Botão de Registro -->
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Registrar
+            </button>
+            <!-- Link para Login -->
+        <div class="text-center mt-4">
+            <p class="text-gray-400">
+                Já tem uma conta?
+                <a href="{{ url_for('login') }}" class="text-blue-400 hover:underline">
+                    Faça login aqui
+                </a>
+            </p>
+        </div>
+        </form>
+
+    </div>   
+    <script>
+        // Função para alternar a visibilidade da senha
+        function togglePasswordVisibility(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+    
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("bi-eye-fill");
+                toggleIcon.classList.add("bi-eye-slash-fill");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("bi-eye-slash-fill");
+                toggleIcon.classList.add("bi-eye-fill");
+            }
+        }
+
+        function toggleDropdown() {
+        const dropdown = document.getElementById('dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const menuButton = document.getElementById("menuButton");
+        const mobileMenu = document.getElementById("mobileMenu");
+        const closeMenu = document.getElementById("closeMenu");
+        const menuLinks = document.querySelectorAll(".menu-link"); // Links do menu
+
+        if (menuButton && mobileMenu && closeMenu) {
+            // Abrir o menu
+            menuButton.addEventListener("click", () => {
+                mobileMenu.classList.remove("hidden");
+            });
+
+            // Fechar o menu
+            closeMenu.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+            });
+
+            // Fechar o menu ao clicar em qualquer link
+            menuLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    mobileMenu.classList.add("hidden");
+                });
+            });
+        }
+    });    
+    </script>
+    
+    
+</body>
+</html>

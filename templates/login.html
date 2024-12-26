@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - STUDIO D'elas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+    <style>
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+
+
+    </style>
+
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-pink-400 text-white" style="height: 80px; display: flex;">
+    <div class="container mx-auto flex justify-between items-center py-4 px-4">
+        <!-- Logo -->
+       <a href="{{ url_for('home') }}" class="flex items-center">
+        <p class="logo">Van Nails</p>
+    </a>
+
+        <!-- Botão de Menu Mobile -->
+        <button id="menuButton" class="md:hidden block focus:outline-none">
+            <i class="bi bi-list hover:text-gray-100" style="font-size: 40px;"></i>
+        </button>
+
+        <!-- Links Desktop -->
+        <div id="desktopMenu" class="hidden md:flex space-x-6" style="align-items: center;">
+            {% if session['user_id'] %}
+                <div class="relative inline-block">
+                    <div class="relative inline-block flex space-x-6" style="align-items: center;">
+                        <button onclick="toggleDropdown()" class="focus:outline-none">
+                            <i class="bi bi-person-circle hover:text-blue-200" style="font-size: 36px;"></i>
+                        </button>
+                        <div id="dropdown" class="hidden absolute right-0 bg-white text-black shadow-lg rounded-lg" style="margin-top: 120px;">
+                            <a href="{{ url_for('meus_agendamentos') }}" class="block px-4 py-2 hover:bg-gray-400 rounded-lg">Meus Agendamentos</a>
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-400 rounded-lg">Sair</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                
+            <a href="/login" class="inline-flex items-center px-6 py-2 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600">
+                Login
+            </a>
+            <a href="/register" class="inline-flex items-center px-6 py-2 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600">
+                Registrar
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Menu Mobile -->
+    <div id="mobileMenu" class="hidden flex flex-col space-y-2 bg-gray-800 px-4 py-2 md:hidden">
+        {% if session['user_id'] %}
+            
+            <a href="{{ url_for('meus_agendamentos') }}" class="hover:text-gray-300">Meus Agendamentos</a>
+            <a href="{{ url_for('logout') }}" class="hover:text-gray-300">Sair</a>
+        {% else %}
+            
+            <a href="/login" class="bg-blue-600 py-2 px-4 rounded hover:bg-blue-700" style="width: 80px;">Login</a>
+            <a href="/register" class="bg-green-600 py-2 px-4 rounded hover:bg-green-700" style="width: 100px;">Registrar</a>
+        {% endif %}
+    </div>
+</nav>
+    <div class="container mx-auto mt-4">
+        <div id="flash-messages" class="space-y-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="p-4 border rounded 
+                            {{ 'bg-green-100 border-green-500 text-green-700' if category == 'success' else 
+                               'bg-red-100 border-red-500 text-red-700' if category == 'error' else 
+                               'bg-blue-100 border-blue-500 text-blue-700' }}">
+                            <strong>{{ message }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    
+    <div class="container mx-auto mt-20 max-w-md">
+        <h2 class="text-3xl font-bold text-center text-gray-100">Login</h2>
+        <form action="/login" method="POST" class="block w-full mt-1 p-2 rounded-lg bg-gray-800 shadow-md">
+            <label class="block mb-4">
+                <span class="text-gray-300">Email</span>
+                <input type="email" name="email" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white">
+            </label>
+            <label class="block mb-4">
+                <span class="text-gray-300">Senha</span>
+                <input type="password" name="password" required class="block w-full mt-1 p-2 border rounded bg-gray-700 text-white">
+            </label>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Entrar
+            </button>
+        </form>
+
+         <!-- Link para Registro -->
+         <div class="text-center mt-4">
+            <p class="text-white">
+                Não tem uma conta? 
+                <a href="{{ url_for('register') }}" class="text-blue-600 hover:underline">
+                    Crie uma agora 
+                </a>
+                <span>ou</span>
+                <a href="{{ url_for('forgot_password') }}" class="text-blue-600 hover:text-blue-800">Esqueceu a senha?</a>
+            </p>
+        </div>
+
+    </div>
+    <script>
+         // Script para abrir/fechar o menu mobile
+    const menuButton = document.getElementById("menuButton");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    menuButton.addEventListener("click", () => {
+        if (mobileMenu.classList.contains("hidden")) {
+            mobileMenu.classList.remove("hidden");
+        } else {
+            mobileMenu.classList.add("hidden");
+        }
+    });    
+    </script>
+</body>
+</html>

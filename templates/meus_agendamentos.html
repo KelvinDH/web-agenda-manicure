@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Agendamentos - Van Nails</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+    <style>
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+
+
+    </style>
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<!-- Navbar -->
+<nav class="bg-pink-400 text-white">
+    <div class="container mx-auto flex justify-between items-center py-4 px-4">
+        <!-- Logo -->
+        <a href="{{ url_for('home') }}" class="flex items-center">
+            <p class="logo">Van Nails</p>
+        </a>
+        <div>
+            {% if session['user_id'] %}
+                <div class="relative inline-block">
+                    <button onclick="toggleDropdown()" class="focus:outline-none">
+                        <button onclick="toggleDropdown()" class="focus:outline-none">
+                            <i class="bi bi-person-circle hover:text-blue-200" style="font-size: 36px;"></i>
+                        </button>
+                    </button>
+                    <div id="dropdown" class="hidden absolute right-0 bg-white text-black shadow-lg" style="width: 200px;">
+                        <a href="{{ url_for('agendar') }}" class="block px-4 py-2 hover:bg-gray-400">Agendar horário</a>
+                        <a href="{{ url_for('meus_agendamentos') }}" class="block px-4 py-2 hover:bg-gray-400">Meus Agendamentos</a>
+                        <a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-400">Sair</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="/login" class="mr-4 py-2 px-4 bg-blue-600 rounded hover:bg-blue-700">Login</a>
+                <a href="/register" class="py-2 px-4 bg-green-600 rounded hover:bg-green-700">Registrar</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<div class="container mx-auto mt-10">
+    <h2 class="text-3xl font-bold text-center">Meus Agendamentos</h2>
+    <div class="mt-6">
+        {% if appointments_by_month %}
+            {% for month, appointments in appointments_by_month.items() %}
+                <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+                    <h3 class="text-2xl font-bold text-gray-800">{{ month }}</h3>
+                    <ul class="mt-4">
+                        {% for appointment in appointments %}
+                            <li class="mb-4 border-b pb-2">
+                                <p><strong>Data:</strong> {{ appointment.date.strftime('%d/%m/%Y') }}</p>
+                                <p><strong>Horário:</strong> {{ appointment.time.strftime('%H:%M') }}</p>
+                                <p><strong>Serviço:</strong> {{ appointment.service_type }}</p>
+                                <p><strong>Preço:</strong> R$ {{ '%.2f' | format(appointment.price) }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-gray-600">Você ainda não fez nenhum agendamento.</p>
+        {% endif %}
+    </div>
+</div>
+<!-- Footer -->
+<footer class="py-10 bg-pink-400 text-white">
+    <div class="container mx-auto text-center">
+        <p>© 2024 Van Nails. Desenvolvido por: PulseTek</p>
+    </div>
+</footer>
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+</script>
+</body>
+</html>

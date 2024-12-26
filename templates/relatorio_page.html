@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerar Relatório - Van Nails</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+    <style>
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+
+
+    </style>
+
+    <script>
+        function toggleFields() {
+            const reportType = document.querySelector('select[name="report_type"]').value;
+            const dateField = document.getElementById('date_field');
+            const monthField = document.getElementById('month_field');
+            
+            if (reportType === 'day') {
+                dateField.style.display = 'block';
+                monthField.style.display = 'none';
+                document.querySelector('input[name="date"]').required = true;
+                document.querySelector('input[name="month"]').required = false;
+            } else if (reportType === 'month') {
+                dateField.style.display = 'none';
+                monthField.style.display = 'block';
+                document.querySelector('input[name="date"]').required = false;
+                document.querySelector('input[name="month"]').required = true;
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navbar -->
+    <nav class="bg-pink-400 text-white">
+        <div class="container mx-auto flex justify-between items-center py-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="text-2xl font-bold">
+                <p class="logo">Van Nails</p>
+            </a>
+            <a href="{{ url_for('logout') }}" class="bg-red-600 py-2 px-4 rounded hover:bg-red-700">
+                Sair
+            </a>
+        </div>
+    </nav>
+
+    <!-- Formulário para Gerar Relatório -->
+    <div class="container mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-2xl font-bold text-gray-800">Gerar Relatório</h3>
+        <form action="{{ url_for('gerar_relatorio') }}" method="POST" class="mt-4">
+            <!-- Tipo de Relatório -->
+            <label class="block mb-4">
+                <span class="text-gray-700">Tipo de Relatório</span>
+                <select name="report_type" onchange="toggleFields()" required class="block w-full mt-1 p-2 border rounded">
+                    <option value="" disabled selected>Selecione o tipo de relatório</option>
+                    <option value="day">Relatório do Dia</option>
+                    <option value="month">Relatório do Mês</option>
+                </select>
+            </label>
+
+            <!-- Campo de Data (Relatório Diário) -->
+            <label id="date_field" class="block mb-4" style="display: none;">
+                <span class="text-gray-700">Data</span>
+                <input type="date" name="date" class="block w-full mt-1 p-2 border rounded">
+            </label>
+
+            <!-- Campo de Mês (Relatório Mensal) -->
+            <label id="month_field" class="block mb-4" style="display: none;">
+                <span class="text-gray-700">Mês</span>
+                <input type="month" name="month" class="block w-full mt-1 p-2 border rounded">
+            </label>
+
+            <!-- Campo de Barbeiro -->
+            <label class="block mb-4">
+                <span class="text-gray-700">Barbeiro</span>
+                <select name="barber" class="block w-full mt-1 p-2 border rounded">
+                    <option value="">Todos</option> <!-- Opção para não filtrar por barbeiro -->
+                    <option value="Vanderli">Vanderli</option>
+                    
+                </select>
+            </label>
+
+            <!-- Botão de Submissão -->
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Gerar Relatório em PDF
+            </button>
+        </form>
+        <div class="text-center mt-6">
+            <a href="{{ url_for('admin_dashboard') }}" class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700">
+                Voltar ao Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+

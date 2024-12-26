@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar - Van Nails</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+    <style>
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+
+
+    </style>
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Navbar -->
+    {% if session['user_id'] %}
+        <nav class="bg-pink-400 text-white">
+            <div class="container mx-auto flex justify-between items-center py-4 px-4">
+                <!-- Logo -->
+        <a href="{{ url_for('home') }}" class="flex items-center">
+            <p class="logo">Van Nails</p>
+        </a>
+        <div class="relative inline-block">
+                <button onclick="toggleDropdown()" class="focus:outline-none">
+                    <i class="bi bi-person-circle hover:text-blue-200" style="font-size: 36px;"></i>
+                </button>
+                <div id="dropdown" class="hidden absolute right-0 bg-white text-black shadow-lg " style="width: 200px;">
+                    <a href="{{ url_for('agendar') }}" class="block px-4 py-2 hover:bg-gray-400 ">Agendar</a>
+                    <a href="{{ url_for('meus_agendamentos') }}" class="block px-4 py-2 hover:bg-gray-400 ">Meus Agendamentos</a>
+                    <a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-400">Sair</a>
+                </div>
+            </div>
+        </div>    
+        </nav>
+        {% endif %}    
+
+    <!-- Agendamento -->
+    <div class="container mx-auto mt-10 max-w-md">
+        <h2 class="text-3xl font-bold text-center">Agendar Horário</h2>
+        <p class="text-center text-gray-600 mt-2">Escolha a data, horário e o serviço desejado.</p>
+
+        <!-- Mensagens Flash -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div class="mt-6">
+                {% for category, message in messages %}
+                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 text-{{ 'green' if category == 'success' else 'red' }}-800 px-4 py-2 rounded mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
+     <form method="POST" class="mt-6 bg-white p-6 rounded-lg shadow-md">
+    <!-- Campo de Data -->
+    <label class="block mb-4">
+        <span class="text-gray-700">Data</span>
+        <input id="date" type="date" name="date" required class="block w-full mt-1 p-2 border rounded">
+    </label>
+
+    <label class="block mb-4">
+        <span class="text-gray-700">Manicure</span>
+        <select id="barber" name="barber" required class="block w-full mt-1 p-2 border rounded">
+            <option value="" disabled selected>Escolha uma Manicure</option>
+            <option value="Vanderli">Vanderli</option>
+        </select>
+    </label>
+    
+    <!-- Campo de Horário -->
+    <label class="block mb-4">
+        <span class="text-gray-700">Horário</span>
+        <select id="time" name="time" required class="block w-full mt-1 p-2 border rounded">
+            <option value="" disabled selected>Escolha um horário</option>
+        </select>
+    </label>
+
+
+
+    <!-- Campo de Serviço -->
+<label class="block mb-4">
+    <span class="text-gray-700">Serviço</span>
+    <select name="service_type" required class="block w-full mt-1 p-2 border rounded">
+        <!-- Grupo Unhas Básicas -->
+        <optgroup label="Unhas Básicas">
+            <option value="Mão">Mão - R$35,00</option>
+            <option value="Pé">Pé - R$35,00</option>
+            <option value="Esmaltação em Gel">Esmaltação em Gel - R$50,00</option>
+        </optgroup>
+
+        <!-- Grupo Alongamentos -->
+        <optgroup label="Alongamentos">
+            <option value="Fibra ou Tips">Fibra ou Tips - R$180,00</option>
+            <option value="Banho de Gel">Banho de Gel - R$120,00</option>
+            <option value="Blindagem">Blindagem - R$80,00</option>
+            <option value="Alongamento Pé">Alongamento Pé - R$80,00</option>
+            <option value="Spa dos Pés">Spa dos Pés - R$90,00</option>
+        </optgroup>
+
+        <!-- Grupo Adicionais -->
+        <optgroup label="Adicionais">
+            <option value="Manutenção Fibra, Tips">Manutenção Fibra, Tips - R$150,00</option>
+            <option value="Remoção">Remoção - R$50,00</option>
+            <option value="Nails Arts/un">Nails Arts/un - R$10,00</option>
+        </optgroup>
+    </select>
+</label>
+
+
+   
+
+
+    <!-- Botão de Submissão -->
+    <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+        Confirmar Agendamento
+    </button>
+</form>
+
+        
+
+        
+    </div>
+<!-- Footer -->
+<footer class="py-10 bg-pink-400 text-white">
+    <div class="container mx-auto text-center">
+        <p>© 2024 Van Nails. Desenvolvido por: PulseTek</p>
+    </div>
+</footer>    
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const dateField = document.getElementById("date");
+        const barberField = document.getElementById("barber");
+        const timeField = document.getElementById("time");
+
+        async function fetchAvailableTimes() {
+            const date = dateField.value;
+            const barber = barberField.value;
+
+            // Limpa os horários quando não há data ou barbeiro selecionado
+            if (!date || !barber) {
+                timeField.innerHTML = '<option value="" disabled selected>Escolha um horário</option>';
+                return;
+            }
+
+            const response = await fetch("/get_available_times", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ date, barber }),
+            });
+
+            const availableTimes = await response.json();
+
+            // Atualiza o campo de horários
+            timeField.innerHTML = availableTimes.length
+                ? availableTimes.map(time => `<option value="${time}">${time}</option>`).join("")
+                : '<option value="" disabled>Sem horários disponíveis</option>';
+        }
+
+        // Atualizar os horários disponíveis ao mudar a data ou o barbeiro
+        dateField.addEventListener("change", fetchAvailableTimes);
+        barberField.addEventListener("change", fetchAvailableTimes);
+
+        
+
+    });
+
+    </script>
+
+<script>
+    const carousel = document.querySelector('.carousel');
+    const slides = document.querySelectorAll('.carousel-item');
+    const prevButton = document.getElementById('prev');
+    const nextButton = document.getElementById('next');
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.style.display = i === index ? 'block' : 'none';
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        showSlide(currentIndex);
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        showSlide(currentIndex);
+    }
+
+    // Event listeners para botões
+    nextButton.addEventListener('click', nextSlide);
+    prevButton.addEventListener('click', prevSlide);
+
+    // Slide automático
+    setInterval(nextSlide, 3000);
+
+    // Inicializa o carousel
+    showSlide(currentIndex);
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById('dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const menuButton = document.getElementById("menuButton");
+        const mobileMenu = document.getElementById("mobileMenu");
+        const closeMenu = document.getElementById("closeMenu");
+        const menuLinks = document.querySelectorAll(".menu-link"); // Links do menu
+
+        if (menuButton && mobileMenu && closeMenu) {
+            // Abrir o menu
+            menuButton.addEventListener("click", () => {
+                mobileMenu.classList.remove("hidden");
+            });
+
+            // Fechar o menu
+            closeMenu.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+            });
+
+            // Fechar o menu ao clicar em qualquer link
+            menuLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    mobileMenu.classList.add("hidden");
+                });
+            });
+        }
+    });
+</script>    
+
+</body>
+</html>

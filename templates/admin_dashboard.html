@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrador - Van Nails</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Playwrite+AU+VIC+Guides&family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos para o modal */
+        #infoModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        #infoModal .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-family: "Imperial Script", serif;
+            font-style: normal;
+            font-size: 36px;
+            font-weight: 200;
+
+        }
+    </style> 
+    
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navbar -->
+    <nav class="bg-pink-400 text-white">
+        <div class="container mx-auto flex justify-between items-center py-4">
+           <!-- Logo -->
+        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center">
+            <p class="logo">Van Nails</p>
+        </a>
+
+            <a href="{{ url_for('logout') }}" class="bg-white-600 py-2 px-4 rounded hover:bg-red-700">
+                Sair
+            </a>
+        </div>
+    </nav>
+
+    <!-- Container -->
+    <div class="container mx-auto mt-10">
+        <h2 class="text-3xl font-bold text-center">Dashboard do Administrador</h2>
+
+        <!-- Botões de Filtro -->
+        <div class="flex justify-center space-x-4 mt-6">
+            <a href="?view=month" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Filtrar por Mês
+            </a>
+            <a href="?view=day" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                Filtrar por Dia
+            </a>
+            <a href="{{ url_for('relatorio_page') }}" class="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700">
+                Gerar Relatório
+            </a>
+        </div>
+
+       
+<!-- Agendamentos do Dia Atual -->
+{% if appointments_today %}
+<div class="mt-10 bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-2xl font-bold text-gray-800">Agendamentos de Hoje ({{ today.strftime('%d/%m/%Y') }})</h3>
+    <!-- Tornar a tabela responsiva -->
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full mt-4">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2">Hora</th>
+                    <th class="px-4 py-2">Cliente</th>
+                    <th class="px-4 py-2">Serviço</th>
+                    <th class="px-4 py-2">Preço</th>
+                    <th class="px-4 py-2">Barbeiro</th>
+                    <th class="px-4 py-2">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments_today %}
+                <tr class="border-b">
+                    <td class="px-4 py-2">{{ appointment.time.strftime('%H:%M') }}</td>
+                    <td class="px-4 py-2">{{ appointment.user.name }}</td>
+                    <td class="px-4 py-2">{{ appointment.service_type }}</td>
+                    <td class="px-4 py-2">R${{ '%.2f' | format(appointment.price) }}</td>
+                    <td class="px-4 py-2">{{ appointment.barber }}</td>
+                    <td class="px-4 py-2 flex space-x-2">
+                        <!-- Ver Informações -->
+                        <button onclick="openModal('{{ appointment.user.name }}', '{{ appointment.user.email }}', '{{ appointment.user.phone }}')"
+                                class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </button>
+                        <!-- Editar -->
+                        <a href="{{ url_for('editar_agendamento', appointment_id=appointment.id) }}"
+                           class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">
+                           <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <!-- Deletar -->
+                        <a href="{{ url_for('deletar_agendamento', appointment_id=appointment.id) }}"
+                           onclick="return confirm('Tem certeza que deseja deletar este agendamento?')"
+                           class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                           <i class="bi bi-trash3-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para Informações do Cliente -->
+    <div id="infoModal">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4">Informações do Cliente</h3>
+            <p><strong>Nome:</strong> <span id="clientName"></span></p>
+            <p><strong>E-mail:</strong> <span id="clientEmail"></span></p>
+            <p><strong>Telefone:</strong> <span id="clientPhone"></span></p>
+            <button onclick="closeModal()" class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                Fechar
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Visualização por Mês -->
+{% if view_mode == 'month' %}
+{% for month, appointments in appointments_by_month.items() %}
+<div class="mt-10 bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-2xl font-bold text-gray-800">{{ month }}</h3>
+    <!-- Tornar a tabela responsiva -->
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full mt-4">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="px-4 py-2">Data</th>
+                    <th class="px-4 py-2">Hora</th>
+                    <th class="px-4 py-2">Cliente</th>
+                    <th class="px-4 py-2">Serviço</th>
+                    <th class="px-4 py-2">Preço</th>
+                    <th class="px-4 py-2">Barbeiro</th>
+                    <th class="px-4 py-2">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr class="border-b">
+                    <td class="px-4 py-2">{{ appointment.date.strftime('%d/%m/%Y') }}</td>
+                    <td class="px-4 py-2">{{ appointment.time.strftime('%H:%M') }}</td>
+                    <td class="px-4 py-2">{{ appointment.user.name }}</td>
+                    <td class="px-4 py-2">{{ appointment.service_type }}</td>
+                    <td class="px-4 py-2">R${{ '%.2f' | format(appointment.price) }}</td>
+                    <td class="px-4 py-2">{{ appointment.barber }}</td>
+                    <td class="px-4 py-2 flex space-x-2">
+                        <!-- Ver Informações -->
+                        <button onclick="openModal('{{ appointment.user.name }}', '{{ appointment.user.email }}', '{{ appointment.user.phone }}')"
+                                class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </button>
+                           
+                        <!-- Editar -->
+                        <a href="{{ url_for('editar_agendamento', appointment_id=appointment.id) }}"
+                           class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">
+                           <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <!-- Deletar -->
+                        <a href="{{ url_for('deletar_agendamento', appointment_id=appointment.id) }}"
+                           onclick="return confirm('Tem certeza que deseja deletar este agendamento?')"
+                           class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+                           <i class="bi bi-trash3-fill"></i>
+                        </a>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+    </div>
+
+
+
+    <script>
+        // Função para abrir o modal com informações do cliente
+        function openModal(clientName, clientEmail, clientPhone) {
+            const modal = document.getElementById("infoModal");
+            modal.querySelector("#clientName").textContent = clientName;
+            modal.querySelector("#clientEmail").textContent = clientEmail;
+            modal.querySelector("#clientPhone").textContent = clientPhone;
+            modal.style.display = "flex";
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            const modal = document.getElementById("infoModal");
+            modal.style.display = "none";
+        }
+
+         // Função para abrir o modal
+         function openDeleteModal(appointmentId) {
+            const modal = document.getElementById("deleteModal");
+            modal.style.display = "flex";
+            // Atualizar o link de exclusão com o ID do agendamento
+            const deleteLink = document.getElementById("confirmDelete");
+            deleteLink.href = `/admin/deletar-agendamento/${appointmentId}`;
+        }
+
+        // Função para fechar o modal
+        function closeDeleteModal() {
+            const modal = document.getElementById("deleteModal");
+            modal.style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
